@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your FriendWow Interview</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fbf7f2; --card:#ffffff; --ink:#2b2522; --muted:#6f655f;
+    --accent:#e0703a; --accent-dark:#c25a27; --soft:#fdebe0; --line:#ece3da;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.6;font-size:18px}
+  .wrap{max-width:640px;margin:0 auto;padding:32px 16px 120px}
+  .brand{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:28px;color:var(--accent);letter-spacing:-.5px}
+  .brand span{color:var(--ink)}
+  h1{font-family:Fraunces,Georgia,serif;font-size:34px;line-height:1.2;margin:24px 0 8px}
+  .lead{color:var(--muted);margin:0 0 24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:20px}
+  .code{display:flex;align-items:center;gap:12px;background:var(--soft);border-radius:12px;padding:14px 16px;font-weight:600}
+  .code b{font-size:22px;letter-spacing:1px}
+  ol{padding-left:22px;margin:0}
+  ol li{margin-bottom:10px}
+  .note{font-size:15px;color:var(--muted)}
+  label{display:block;font-weight:600;margin-bottom:8px}
+  input{width:100%;font-size:20px;padding:12px 14px;border:2px solid var(--line);border-radius:10px;text-transform:uppercase}
+  input:focus{outline:none;border-color:var(--accent)}
+  button{margin-top:12px;background:var(--accent);color:#fff;border:0;border-radius:10px;padding:14px 22px;font-size:18px;font-weight:600;cursor:pointer;width:100%}
+  button:hover{background:var(--accent-dark)}
+  .start{text-align:center}
+  .start p{margin:0 0 8px}
+  .hidden{display:none}
+  .foot{text-align:center;font-size:14px;color:var(--muted);margin-top:32px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Friend<span>Wow</span></div>
+
+  <h1>Your interview with AI Paul</h1>
+  <p class="lead">A friendly 10-minute voice chat about your passions and the kind of friend you're hoping to meet. It helps us find people you'll really click with.</p>
+
+  <!-- Shown when the link includes a code -->
+  <div id="codeCard" class="card hidden">
+    <div class="code">Your member code: <b id="codeText"></b></div>
+  </div>
+
+  <!-- Shown when there's no code in the link -->
+  <div id="askCard" class="card hidden">
+    <label for="codeInput">Enter your member code</label>
+    <input id="codeInput" placeholder="FW1001" autocomplete="off">
+    <button id="codeBtn" type="button">Continue</button>
+    <p class="note">You'll find your code in your FriendWow welcome email.</p>
+  </div>
+
+  <div class="card">
+    <strong>Before you start</strong>
+    <ol>
+      <li>Find a quiet spot where you can talk for about 10 minutes.</li>
+      <li>Click the button at the bottom of the screen and allow your microphone when asked.</li>
+      <li>Just chat naturally. There are no wrong answers.</li>
+    </ol>
+    <p class="note">We keep a written transcript only. No audio recording is saved. You're talking with an AI version of Paul, FriendWow's founder.</p>
+  </div>
+
+  <div id="startCard" class="card start hidden">
+    <p><strong>Ready when you are.</strong></p>
+    <p class="note">Click the call button in the bottom corner to begin.</p>
+  </div>
+
+  <div class="foot">Questions? Just reply to your FriendWow welcome email.</div>
+</div>
+
+<div id="widgetSlot"></div>
+
+<script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+<script>
+  var AGENT_ID = 'agent_9301m551ep40eh3vj8t3606cx18v';
+
+  function clean(s){ return (s || '').toString().trim(); }
+  var params = new URLSearchParams(window.location.search);
+  var code = clean(params.get('code')).toUpperCase();
+  var name = clean(params.get('name'));
+
+  function startWidget(memberCode){
+    document.getElementById('codeText').textContent = memberCode;
+    document.getElementById('codeCard').classList.remove('hidden');
+    document.getElementById('askCard').classList.add('hidden');
+    document.getElementById('startCard').classList.remove('hidden');
+
+    var vars = { member_code: memberCode, first_name: name || 'not provided' };
+    var w = document.createElement('elevenlabs-convai');
+    w.setAttribute('agent-id', AGENT_ID);
+    w.setAttribute('dynamic-variables', JSON.stringify(vars));
+    w.setAttribute('variant', 'expanded');
+    w.setAttribute('action-text', 'Start my interview');
+    w.setAttribute('start-call-text', 'Start interview');
+    w.setAttribute('end-call-text', 'End');
+    document.getElementById('widgetSlot').appendChild(w);
+  }
+
+  if (/^FW\d{3,}$/.test(code)) {
+    startWidget(code);
+  } else {
+    document.getElementById('askCard').classList.remove('hidden');
+    var input = document.getElementById('codeInput');
+    if (code) input.value = code;
+    document.getElementById('codeBtn').addEventListener('click', function(){
+      var v = clean(input.value).toUpperCase().replace(/\s+/g, '');
+      if (!/^FW\d{3,}$/.test(v)) {
+        alert('Please enter your code exactly as it appears in your welcome email (for example FW1001).');
+        return;
+      }
+      startWidget(v);
+    });
+  }
+</script>
+</body>
+</html>
